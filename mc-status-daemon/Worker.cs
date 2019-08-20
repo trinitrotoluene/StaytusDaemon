@@ -42,18 +42,18 @@ namespace mc_status_daemon
                 {
                     await PollServerHostAsync();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    _logger.LogWarning("Failed to update host status");
+                    _logger.LogWarning($"Failed to update host status: {ex}");
                 }
 
                 try
                 {
                     await PollMcServerAsync();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    _logger.LogWarning("Failed to update server status");
+                    _logger.LogWarning($"Failed to update server status: {ex}");
                 }
 
                 await Task.Delay(_config.GetValue<int>("interval"), stoppingToken);
