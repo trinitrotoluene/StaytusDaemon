@@ -44,7 +44,7 @@ namespace mc_status_daemon
                 }
                 catch
                 {
-                    // ignored
+                    _logger.LogWarning("Failed to update host status");
                 }
 
                 try
@@ -53,10 +53,10 @@ namespace mc_status_daemon
                 }
                 catch
                 {
-                    // ignored
+                    _logger.LogWarning("Failed to update server status");
                 }
 
-                await Task.Delay(5000, stoppingToken);
+                await Task.Delay(_config.GetValue<int>("interval"), stoppingToken);
             }
         }
 
