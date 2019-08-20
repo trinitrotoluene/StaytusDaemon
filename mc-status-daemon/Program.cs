@@ -15,14 +15,6 @@ namespace mc_status_daemon
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureLogging(logBuilder =>
-                {
-                    #if DEBUG
-                    logBuilder.SetMinimumLevel(LogLevel.Debug);
-                    #else
-                    logBuilder.SetMinimumLevel(LogLevel.Information);
-                    #endif
-                })
                 .ConfigureAppConfiguration(config =>
                 {
                     config.AddEnvironmentVariables(prefix: "MC_DAEMON_")
@@ -30,10 +22,16 @@ namespace mc_status_daemon
                         .AddJsonFile("config.json", optional: true)
                         .AddUserSecrets<Program>(optional: true);
                 })
+                .ConfigureLogging((hostContext, logBuilder) =>
+                {
+                    logBuilder.SetMinimumLevel(hostContext.Configuration.GetValue<bool>("debug")
+                        ? LogLevel.Debug
+                        : LogLevel.Information);
+                })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddHostedService<Worker>();
-                    services.AddSingleton<HttpClient>();
+                    services.AddHostedService<Worker>()
+                        .AddSingleton<HttpClient>();
                 });
     }
 }

@@ -2,12 +2,12 @@ namespace mc_status_daemon
 {
     public static class ApiConstants
     {
-        public static string SetStatusEndpoint = "/services/set_status";
+        public static readonly string SetStatusEndpoint = "/services/set_status";
 
-        public static string GetStatusEndpoint = "/services/info";
+        public static readonly string GetStatusEndpoint = "/services/info";
 
-        public static string McApi = "https://mcapi.us/server/status?ip={0}&port={1}";
+        public static readonly string McApi = "https://mcapi.us/server/status?ip={0}&port={1}";
         
-        public static Permalinks Permalinks = new Permalinks();
+        public static readonly Permalinks Permalinks = new Permalinks();
     }
 }

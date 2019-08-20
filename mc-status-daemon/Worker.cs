@@ -56,7 +56,7 @@ namespace mc_status_daemon
                     _logger.LogWarning($"Failed to update server status: {ex}");
                 }
 
-                await Task.Delay(_config.GetValue<int>("interval"), stoppingToken);
+                await Task.Delay(_config.GetValue<int>("interval") * 1000, stoppingToken);
             }
         }
 
@@ -148,22 +148,28 @@ namespace mc_status_daemon
 
         private HttpRequestMessage BuildMcApiRequestMessage(string ipAddress, string port)
         {
+            var requestUri = string.Format(ApiConstants.McApi, ipAddress, port);
+            _logger.LogDebug("Sending request to " + requestUri);
+            
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(string.Format(ApiConstants.McApi, ipAddress, port))
+                RequestUri = new Uri(requestUri)
             };
             return request;
         }
         
         private HttpRequestMessage BuildStatusUpdateMessage(string serviceName, string permalink)
         {
+            var requestUri = _config["staytus:base_url"] + ApiConstants.SetStatusEndpoint;
+            _logger.LogDebug("Sending request to " + requestUri);
+            
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
                 Content = new StringContent($@"{{ ""service"": ""{serviceName}"", ""status"": ""{permalink}""}}",
                     Encoding.UTF8, "application/json"),
-                RequestUri = new Uri(_config["staytus:base_url"] + ApiConstants.SetStatusEndpoint)
+                RequestUri = new Uri(requestUri)
             };
 
             return request;
@@ -171,12 +177,15 @@ namespace mc_status_daemon
 
         private HttpRequestMessage BuildStatusRequestMessage(string serviceName)
         {
+            var requestUri = _config["staytus:base_url"] + ApiConstants.GetStatusEndpoint;
+            _logger.LogDebug("Sending request to " + requestUri);
+            
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
                 Content = new StringContent($@"{{""service"": ""{serviceName}""}}", Encoding.UTF8,
                     "application/json"),
-                RequestUri = new Uri(_config["staytus:base_url"] + ApiConstants.GetStatusEndpoint)
+                RequestUri = new Uri(requestUri)
             };
 
             return request;
