@@ -23,7 +23,7 @@ namespace mc_status_daemon
                 .ConfigureAppConfiguration((hostContext, config) =>
                 {
                     var configPath = hostContext.Configuration["config"];
-                    config.AddJsonFile("config.json")
+                    config.AddJsonFile(configPath)
                         .AddUserSecrets<Program>(optional: true);
                 })
                 .ConfigureLogging((hostContext, logBuilder) =>
