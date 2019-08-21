@@ -44,7 +44,8 @@ namespace mc_status_daemon
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"Failed to update host status: {ex}");
+                    _logger.LogError($"Failed to update host status: {ex}");
+                    return;
                 }
 
                 try
@@ -53,7 +54,8 @@ namespace mc_status_daemon
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"Failed to update server status: {ex}");
+                    _logger.LogError($"Failed to update server status: {ex}");
+                    return;
                 }
 
                 var delay = _config.GetValue<int>("interval");
