@@ -1,0 +1,18 @@
+{
+  "server_host": "",
+  "staytus": {
+    "token": "",
+    "secret": "",
+    "base_url": "",
+    "service_name": ""
+  },
+  "host":  {
+    "service_name": ""
+  },
+  "mcapi": {
+    "server_ip": "",
+    "server_port": ""
+  },
+  "interval": 300,
+  "debug": false
+}

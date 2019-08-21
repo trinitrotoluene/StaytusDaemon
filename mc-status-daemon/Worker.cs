@@ -35,7 +35,7 @@ namespace mc_status_daemon
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Daemon started");
-            
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
@@ -56,7 +56,10 @@ namespace mc_status_daemon
                     _logger.LogWarning($"Failed to update server status: {ex}");
                 }
 
-                await Task.Delay(_config.GetValue<int>("interval") * 1000, stoppingToken);
+                var delay = _config.GetValue<int>("interval");
+                if (delay == 0) delay = 300;
+                
+                await Task.Delay(delay * 1000, stoppingToken);
             }
         }
 
