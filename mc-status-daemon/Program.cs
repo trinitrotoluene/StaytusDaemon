@@ -15,11 +15,15 @@ namespace mc_status_daemon
 
         private static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration(config =>
+                .ConfigureHostConfiguration(config =>
                 {
                     config.AddEnvironmentVariables(prefix: "MC_DAEMON_")
-                        .AddCommandLine(args)
-                        .AddJsonFile("config.json")
+                        .AddCommandLine(args);
+                })
+                .ConfigureAppConfiguration((hostContext, config) =>
+                {
+                    var configPath = hostContext.Configuration["config"];
+                    config.AddJsonFile("config.json")
                         .AddUserSecrets<Program>(optional: true);
                 })
                 .ConfigureLogging((hostContext, logBuilder) =>
