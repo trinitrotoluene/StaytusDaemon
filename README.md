@@ -87,11 +87,13 @@ StaytusDaemon is designed with flexibility in mind, so it can easily be adapted 
 
 In order to accomplish this, a plug-in system is used. Simply reference the `StaytusDaemon.Plugins/StaytusDaemon.Plugins.csproj` project in a class library and implement a resolver by extending the `IStatusResolver` interface. Resolvers must also be decorated with the `ResolverAttribute` to define their names used when selecting `Type` in a service definition.
 
+To register your resolver, simply copy the output assembly (and any dependencies added EXCEPT those included by the Plugins package) to the Plugins folder. When the daemon runs it will load and crawl your assembly for resolver types to register.
+
 When the names of two resolvers clash, the most recently added one will remain registered.
 
 Note also that resolvers are not loaded transiently, and thus any state in your resolver should be carefully managed.
 
-See below an example of the "Ping" resolver.
+See below an example of a "Ping" resolver.
 ```c#
 [Resolver("Ping")]
 public class PingResolver : IStatusResolver
