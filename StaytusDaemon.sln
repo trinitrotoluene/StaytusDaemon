@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaytusDaemon", "StaytusDaemon\StaytusDaemon.csproj", "{B50B7CB4-D05B-4C31-A6CF-4D1E6E813587}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaytusDaemon.Plugins", "StaytusDaemon.Plugins\StaytusDaemon.Plugins.csproj", "{42357F1A-461D-4E0B-B67F-12319B0D308A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaytusDaemon.Resolvers", "StaytusDaemon.Resolvers\StaytusDaemon.Resolvers.csproj", "{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,29 @@ Global
 		{B50B7CB4-D05B-4C31-A6CF-4D1E6E813587}.Release|x64.Build.0 = Release|Any CPU
 		{B50B7CB4-D05B-4C31-A6CF-4D1E6E813587}.Release|x86.ActiveCfg = Release|Any CPU
 		{B50B7CB4-D05B-4C31-A6CF-4D1E6E813587}.Release|x86.Build.0 = Release|Any CPU
+		{42357F1A-461D-4E0B-B67F-12319B0D308A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42357F1A-461D-4E0B-B67F-12319B0D308A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42357F1A-461D-4E0B-B67F-12319B0D308A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{42357F1A-461D-4E0B-B67F-12319B0D308A}.Debug|x64.Build.0 = Debug|Any CPU
+		{42357F1A-461D-4E0B-B67F-12319B0D308A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{42357F1A-461D-4E0B-B67F-12319B0D308A}.Debug|x86.Build.0 = Debug|Any CPU
+		{42357F1A-461D-4E0B-B67F-12319B0D308A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42357F1A-461D-4E0B-B67F-12319B0D308A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42357F1A-461D-4E0B-B67F-12319B0D308A}.Release|x64.ActiveCfg = Release|Any CPU
+		{42357F1A-461D-4E0B-B67F-12319B0D308A}.Release|x64.Build.0 = Release|Any CPU
+		{42357F1A-461D-4E0B-B67F-12319B0D308A}.Release|x86.ActiveCfg = Release|Any CPU
+		{42357F1A-461D-4E0B-B67F-12319B0D308A}.Release|x86.Build.0 = Release|Any CPU
+		{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}.Debug|x64.Build.0 = Debug|Any CPU
+		{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}.Debug|x86.Build.0 = Debug|Any CPU
+		{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}.Release|x64.ActiveCfg = Release|Any CPU
+		{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}.Release|x64.Build.0 = Release|Any CPU
+		{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}.Release|x86.ActiveCfg = Release|Any CPU
+		{FEC5600F-542A-4D4B-A0CA-E2B75AD9EBB4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
