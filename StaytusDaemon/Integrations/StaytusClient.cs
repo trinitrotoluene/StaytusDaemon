@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using StaytusDaemon.Plugins;
 
 namespace StaytusDaemon.Integrations
 {
@@ -13,7 +15,7 @@ namespace StaytusDaemon.Integrations
         private readonly ILogger<StaytusClient> _logger;
         private readonly HttpClient _http;
         private readonly IConfiguration _config;
-        
+
         public StaytusClient(IConfiguration config, ILogger<StaytusClient> logger, HttpClient http)
         {
             _config = config;
@@ -21,10 +23,11 @@ namespace StaytusDaemon.Integrations
             _http = http;
         }
 
-        public async Task UpdateStatusAsync(string serviceName, string currentStatus, bool isReportedOnline)
+        public async Task UpdateStatusAsync(string serviceName, string currentStatus, IResolveResult resolveResult)
         {
             string nextStatus = null;
-            if (isReportedOnline)
+
+            if (resolveResult.IsOnline)
             {
                 if (currentStatus != ApiConstants.Permalinks.Operational)
                 {
@@ -56,7 +59,7 @@ namespace StaytusDaemon.Integrations
         
         public async Task<string> GetStatusAsync(string serviceName)
         {
-            var response = await _http.SendAsync(BuildStatusRequestMessage(_config["staytus:base_url"], serviceName));
+            var response = await _http.SendAsync(BuildStatusRequestMessage(_config["Staytus:BaseUrl"], serviceName));
 
             string currentStatus;
             using (var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync()))
@@ -72,7 +75,7 @@ namespace StaytusDaemon.Integrations
 
         private HttpRequestMessage BuildStatusUpdateMessage(string serviceName, string permalink)
         {
-            var requestUri = _config["staytus:base_url"] + ApiConstants.SetStatusEndpoint;
+            var requestUri = _config["Staytus:BaseUrl"] + ApiConstants.SetStatusEndpoint;
             _logger.LogDebug("GET -> " + requestUri);
 
             var request = new HttpRequestMessage
@@ -83,8 +86,8 @@ namespace StaytusDaemon.Integrations
                 RequestUri = new Uri(requestUri)
             };
             
-            request.Headers.Add("X-Auth-Token", _config["staytus:token"]);
-            request.Headers.Add("X-Auth-Secret", _config["staytus:secret"]);
+            request.Headers.Add("X-Auth-Token", _config["Staytus:Token"]);
+            request.Headers.Add("X-Auth-Secret", _config["Staytus:Secret"]);
 
             return request;
         }
@@ -102,8 +105,8 @@ namespace StaytusDaemon.Integrations
                 RequestUri = new Uri(requestUri)
             };
 
-            request.Headers.Add("X-Auth-Token", _config["staytus:token"]);
-            request.Headers.Add("X-Auth-Secret", _config["staytus:secret"]);
+            request.Headers.Add("X-Auth-Token", _config["Staytus:Token"]);
+            request.Headers.Add("X-Auth-Secret", _config["Staytus:Secret"]);
             
             return request;
         }

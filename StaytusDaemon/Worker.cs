@@ -1,98 +1,122 @@
 using System;
-using System.Net.Http;
-using System.Net.NetworkInformation;
+using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using StaytusDaemon.Integrations;
+using StaytusDaemon.Plugins;
+using StaytusDaemon.Reflection;
 
 namespace StaytusDaemon
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
 
-        private readonly IConfiguration _config;
+        private readonly ILoggerFactory _loggerFactory;
 
         private readonly StaytusClient _staytus;
-        private readonly McApiClient _mcApi;
 
-        public Worker(ILogger<Worker> logger, IConfiguration config, StaytusClient staytus, McApiClient mcApi)
+        private readonly PluginManager _pluginManager;
+
+        public Worker(ILogger<Worker> logger, StaytusClient staytus, ILoggerFactory loggerFactory, PluginManager pluginManager)
         {
             _logger = logger;
-            _config = config;
             _staytus = staytus;
-            _mcApi = mcApi;
+            _loggerFactory = loggerFactory;
+            _pluginManager = pluginManager;
         }
 
+        private void LoadPlugins()
+        {
+            var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly()?.Location);
+            
+            var projectLocation = Path.Combine(assemblyLocation, "Plugins");
+
+            foreach (var file in Directory.EnumerateFiles(projectLocation, "*.dll"))
+            {
+                var pluginAssembly = Assembly.LoadFile(file);
+                
+                _pluginManager.AddResolversFrom(pluginAssembly);
+                
+                _logger.LogDebug("Loaded resolvers from {0}", file);
+            }
+        }
+        
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("StaytusDaemon running");
+            _logger.LogInformation("Daemon started, loading plugins");
 
-            var services = _config.GetSection("services");
+            LoadPlugins();
+            
+            _logger.LogInformation("Discovering service units");
 
-            foreach (var service in services.GetChildren())
+            var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly()?.Location);
+            var servicesLocation = Path.Combine(assemblyLocation, "Services");
+            
+            var configurationBuilder = new ConfigurationBuilder();
+            foreach (var file in Directory.GetFiles(servicesLocation, "*.ini"))
             {
-                _logger.LogInformation("Staytus service: {0} found, enabling", service["name"]);
+                _logger.LogInformation("Service file {0} found. Registering.", file);
+                configurationBuilder.AddIniFile(file);
+            }
 
-                _ = DispatchServiceUpdaterAsync(service, stoppingToken);
+            var svcConfig = configurationBuilder.Build();
+
+            var services = svcConfig.GetChildren();
+
+            foreach (var service in services)
+            {
+                var serviceType = service["Type"];
+                
+                _logger.LogInformation("Service '{0}' has type {1}, searching for resolver.", service.Key, serviceType);
+
+                var resolver = _pluginManager.GetResolver(serviceType);
+                
+                _logger.LogInformation("Resolver found, service {0} spawned.", service.Key);
+                
+                _ = DispatchServiceUpdaterAsync(service, resolver, stoppingToken);
             }
 
             await Task.Delay(-1, stoppingToken);
         }
 
-        private async Task DispatchServiceUpdaterAsync(IConfigurationSection serviceConfig, CancellationToken ct)
+        private async Task DispatchServiceUpdaterAsync(IConfigurationSection service, IStatusResolver resolver, 
+            CancellationToken ct)
         {
-            var interval = serviceConfig.GetValue<int>("interval") * 1000;
-            var type = serviceConfig.GetValue<ServiceType>("type");
-
-            _logger.LogInformation("Enabled service of type {0} with interval {1}ms", type, interval);
-
+            var interval = service.GetValue("Interval", 300) * 1000;
+            var context = new ResolveContext()
+            {
+                Host = service["Host"],
+                Logger = _loggerFactory.CreateLogger(service.Key),
+                Port = service.GetValue<ushort>("Port", 80),
+                ServiceConfig = service
+            };
+            
             while (!ct.IsCancellationRequested)
             {
                 try
                 {
-                    var currentStatus = await _staytus.GetStatusAsync(serviceConfig["name"]);
+                    var currentStatus = await _staytus.GetStatusAsync(service.Key);
                     if (currentStatus != ApiConstants.Permalinks.Maintenance)
                     {
-                        switch (type)
-                        {
-                            case ServiceType.Ping:
-                                await PingServerAsync(currentStatus, serviceConfig);
-                                break;
-                            case ServiceType.Minecraft:
-                                await PingMcServerAsync(currentStatus, serviceConfig);
-                                break;
-                        }
+                        var resolveResult = await resolver.ResolveStatusAsync(context);
+
+                        await _staytus.UpdateStatusAsync(service.Key, currentStatus, resolveResult);
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning("An exception was thrown while attempting to update service '{0}' {1}", 
-                        serviceConfig["name"], ex);
+                    _logger.LogWarning("An exception was thrown while attempting to update '{0}':\r\n {1}", 
+                        service["name"], ex);
                 }
                 
                 await Task.Delay(interval, ct);
             }
-        }
-
-        private async Task PingServerAsync(string currentStatus, IConfigurationSection serviceConfig)
-        {
-            var ping = new Ping();
-
-            var pingResult = await ping.SendPingAsync(serviceConfig["host"], 10_000);
-
-            await _staytus.UpdateStatusAsync(serviceConfig["name"], currentStatus,
-                pingResult.Status == IPStatus.Success);
-        }
-
-        private async Task PingMcServerAsync(string currentStatus, IConfigurationSection serviceConfig)
-        {
-            bool isOnline = await _mcApi.CheckServerStatusAsync(serviceConfig["host"], serviceConfig["port"]);
-
-            await _staytus.UpdateStatusAsync(serviceConfig["name"], currentStatus, isOnline);
         }
     }
 }
