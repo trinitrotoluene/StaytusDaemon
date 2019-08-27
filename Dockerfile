@@ -4,14 +4,14 @@ WORKDIR /StaytusDaemon
 
 COPY . ./
 
-RUN dotnet restore
-
 RUN chmod +x ./build.sh
 
 RUN ./build.sh
 
 FROM mcr.microsoft.com/dotnet/core/runtime:3.0
 
-COPY --from=build-env ./output ./
+WORKDIR /StaytusDaemon
+
+COPY --from=build-env ./StaytusDaemon/output ./
 
 ENTRYPOINT ["dotnet", "StaytusDaemon.dll"]
