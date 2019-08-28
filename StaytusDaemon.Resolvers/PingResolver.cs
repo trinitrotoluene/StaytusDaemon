@@ -14,7 +14,7 @@ namespace StaytusDaemon.Resolvers
 
             var pingResult = await ping.SendPingAsync(context.Host);
 
-            return new ResolveResult()
+            return new ResolveResult
             {
                 IsOnline = pingResult.Status == IPStatus.Success,
                 Latency = (int) pingResult.RoundtripTime

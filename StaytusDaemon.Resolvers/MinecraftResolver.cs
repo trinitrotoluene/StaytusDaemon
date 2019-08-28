@@ -9,7 +9,7 @@ namespace StaytusDaemon.Resolvers
     public class MinecraftResolver : IStatusResolver
     {
         private readonly HttpClient _http;
-        
+
         public MinecraftResolver()
         {
             _http = new HttpClient();
@@ -19,10 +19,10 @@ namespace StaytusDaemon.Resolvers
         {
             var mcClient = new McApiClient(_http, context.Logger);
 
-            var isOnline = await mcClient.CheckServerStatusAsync(context.ServiceConfig["host"], 
+            var isOnline = await mcClient.CheckServerStatusAsync(context.ServiceConfig["host"],
                 context.ServiceConfig["port"] ?? "25565");
-            
-            return new ResolveResult()
+
+            return new ResolveResult
             {
                 IsOnline = isOnline
             };

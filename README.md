@@ -43,10 +43,6 @@ BaseUrl=https://status.example.org
 Retry=1
 ; At what latency (if reported) should a service be marked as "Degraded Service"
 LatencyThreshold=500
-; How many intervals should a service fail to resolve before being considered offline?
-FailureThreshold=1
-; How many intervals should a service resolve successfully for before being considered online?
-SuccessThreshold=1
 ```
 
 Once you have correctly configured the daemon's core features, it's time to set up a service. Service units are defined in `Services\Services.ini` by default, however they can be split/defined over several files if you prefer.
@@ -69,7 +65,6 @@ Interval=600
 ; Defaults set in Settings.ini can be overriden in here.
 Retry=3
 LatencyThreshold=300
-FailureThreshold=2
 
 ; Example of a resolver using the optional "Port" tag and a different service type.
 [mc]
