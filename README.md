@@ -5,6 +5,7 @@ StaytusDaemon integrates with the HTTP API exposed by Staytus to update your ser
 
 ## Getting started
 
+<<<<<<< HEAD
 ### Docker
 
 It is recommended that if your environment supports it, that you build the StaytusDaemon image from the included Dockerfile.
@@ -32,6 +33,8 @@ docker run -d \
 
 ### Compile & run
 
+=======
+>>>>>>> cd93ea59f73fc2371abbc269dc808b170035e6d4
 If all you want to do is compile, configure and run the daemon, clone the repository and run the build script.
 
 The script will copy the compiled application to `output/`, at which point you can jump to the "Configure" section of this page.
