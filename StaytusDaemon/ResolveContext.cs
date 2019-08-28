@@ -14,5 +14,7 @@ namespace StaytusDaemon
         public IConfigurationSection ServiceConfig { get; set; }
         
         public ILogger Logger { get; set; }
+        
+        public int Counter { get; set; }
     }
 }

@@ -23,6 +23,11 @@ namespace StaytusDaemon.Integrations
             _http = http;
         }
 
+        public Task UpdateStatusAsync(string serviceName, string newStatus)
+        {
+            return _http.SendAsync(BuildStatusUpdateMessage(serviceName, newStatus));
+        }
+        
         public async Task UpdateStatusAsync(string serviceName, string currentStatus, IResolveResult resolveResult)
         {
             string nextStatus = null;

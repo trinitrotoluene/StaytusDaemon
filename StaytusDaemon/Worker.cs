@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using StaytusDaemon.Integrations;
@@ -23,12 +24,15 @@ namespace StaytusDaemon
 
         private readonly PluginManager _pluginManager;
 
-        public Worker(ILogger<Worker> logger, StaytusClient staytus, ILoggerFactory loggerFactory, PluginManager pluginManager)
+        private readonly IConfiguration _config;
+
+        public Worker(ILogger<Worker> logger, StaytusClient staytus, ILoggerFactory loggerFactory, PluginManager pluginManager, IConfiguration config)
         {
             _logger = logger;
             _staytus = staytus;
             _loggerFactory = loggerFactory;
             _pluginManager = pluginManager;
+            _config = config;
         }
 
         private void LoadPlugins()
@@ -69,6 +73,7 @@ namespace StaytusDaemon
 
             var services = svcConfig.GetChildren();
 
+            var defaultStrategy = new DefaultResolverStrategy(_config.GetSection("Defaults"));
             foreach (var service in services)
             {
                 var serviceType = service["Type"];
@@ -77,18 +82,21 @@ namespace StaytusDaemon
 
                 var resolver = _pluginManager.GetResolver(serviceType);
                 
-                _logger.LogInformation("Resolver found, service {0} spawned.", service.Key);
+                _logger.LogInformation("Creating strategy from service config.");
                 
-                _ = DispatchServiceUpdaterAsync(service, resolver, stoppingToken);
+                var strategy = new CustomResolverStrategy(defaultStrategy, service);
+                
+                _logger.LogInformation("Checks complete, starting service {0}.", service.Key);
+                
+                _ = DispatchServiceUpdaterAsync(service, resolver, strategy, stoppingToken);
             }
 
             await Task.Delay(-1, stoppingToken);
         }
 
         private async Task DispatchServiceUpdaterAsync(IConfigurationSection service, IStatusResolver resolver, 
-            CancellationToken ct)
+            CustomResolverStrategy strategy, CancellationToken ct)
         {
-            var interval = service.GetValue("Interval", 300) * 1000;
             var context = new ResolveContext()
             {
                 Host = service["Host"],
@@ -97,25 +105,13 @@ namespace StaytusDaemon
                 ServiceConfig = service
             };
             
+            var serviceHost = new StaytusService(service, resolver, strategy, _staytus, _loggerFactory.CreateLogger(service.Key));
+            
             while (!ct.IsCancellationRequested)
             {
-                try
-                {
-                    var currentStatus = await _staytus.GetStatusAsync(service.Key);
-                    if (currentStatus != ApiConstants.Permalinks.Maintenance)
-                    {
-                        var resolveResult = await resolver.ResolveStatusAsync(context);
-
-                        await _staytus.UpdateStatusAsync(service.Key, currentStatus, resolveResult);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning("An exception was thrown while attempting to update '{0}':\r\n {1}", 
-                        service["name"], ex);
-                }
+                await serviceHost.UpdateAsync(context, ct);
                 
-                await Task.Delay(interval, ct);
+                await Task.Delay(strategy.Interval, ct);
             }
         }
     }
