@@ -1,6 +1,6 @@
 Write-Host "Compiling StaytusDaemon..."
 
-dotnet build -c Release
+dotnet build -c Release ./StaytusDaemon.Resolvers/StaytusDaemon.Resolvers.csproj
 
 dotnet publish -c Release
 
