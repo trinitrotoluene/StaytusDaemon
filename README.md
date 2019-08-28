@@ -5,6 +5,33 @@ StaytusDaemon integrates with the HTTP API exposed by Staytus to update your ser
 
 ## Getting started
 
+### Docker
+
+It is recommended that if your environment supports it, that you build the StaytusDaemon image from the included Dockerfile.
+
+```bash
+docker build -t trinitrotoluene/staytusdaemon .
+```
+
+Once the build completes, you'll be able to start a StaytusDaemon container with `docker run` whenever you want!
+
+In order to configure the daemon, you'll need to mount your own `Settings.ini` and `Services` folder. See below (and the example files in the repository) for more information.
+
+```bash
+touch Settings.ini
+mkdir Services
+touch Services/MyService.ini
+
+# Configure as shown in later sections and adjust paths as appropriate.
+
+docker run -d \
+    -v /home/$USER/Settings.ini:/StaytusDaemon/Settings.ini:r \
+    -v /home/$USER/Services:/StaytusDaemon/Services:r \
+    trinitrotoluene/staytusdaemon
+```
+
+### Compile & run
+
 If all you want to do is compile, configure and run the daemon, clone the repository and run the build script.
 
 The script will copy the compiled application to `output/`, at which point you can jump to the "Configure" section of this page.
