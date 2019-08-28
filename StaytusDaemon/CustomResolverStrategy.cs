@@ -8,6 +8,12 @@ namespace StaytusDaemon
 
         private readonly IConfigurationSection _service;
 
+        public CustomResolverStrategy(DefaultResolverStrategy defaultStrategy, IConfigurationSection service)
+        {
+            _defaultStrategy = defaultStrategy;
+            _service = service;
+        }
+
         public int RetryAmount
         {
             get
@@ -28,26 +34,6 @@ namespace StaytusDaemon
             }
         }
 
-        public int FailureThreshold
-        {
-            get
-            {
-                var raw = _service["FailureThreshold"];
-                if (string.IsNullOrEmpty(raw)) return _defaultStrategy.FailureThreshold;
-                return int.Parse(raw);
-            }
-        }
-
-        public int SuccessThreshold
-        {
-            get
-            {
-                var raw = _service["SuccessThreshold"];
-                if (string.IsNullOrEmpty(raw)) return _defaultStrategy.SuccessThreshold;
-                return int.Parse(raw);
-            }
-        }
-        
         public int Interval
         {
             get
@@ -56,12 +42,6 @@ namespace StaytusDaemon
                 if (string.IsNullOrEmpty(raw)) return _defaultStrategy.Interval;
                 return int.Parse(raw) * 1000;
             }
-        }
-
-        public CustomResolverStrategy(DefaultResolverStrategy defaultStrategy, IConfigurationSection service)
-        {
-            _defaultStrategy = defaultStrategy;
-            _service = service;
         }
     }
 }

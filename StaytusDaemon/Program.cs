@@ -1,11 +1,9 @@
-using System;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using StaytusDaemon.Integrations;
 using StaytusDaemon.Reflection;
 
@@ -24,18 +22,15 @@ namespace StaytusDaemon
                 {
                     var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly()?.Location);
                     var settingsLocation = Path.Combine(assemblyLocation, "Settings.ini");
-                    config.AddEnvironmentVariables(prefix: "MC_DAEMON_")
+                    config.AddEnvironmentVariables("MC_DAEMON_")
                         .AddCommandLine(args)
-                        
-                        #if DEBUG
+#if DEBUG
                         .AddUserSecrets<Program>(optional: true);
-                        #else
+#else
                         .AddIniFile(settingsLocation);
-                        #endif
+#endif
                 })
-                .ConfigureLogging((hostContext, logBuilder) =>
-                {
-                })
+                .ConfigureLogging((hostContext, logBuilder) => { })
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<Worker>()

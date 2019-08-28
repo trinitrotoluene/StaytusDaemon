@@ -4,13 +4,16 @@
         <TargetFramework>netcoreapp3.0</TargetFramework>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <OutputPath>bin\Debug\</OutputPath>
+    </PropertyGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\StaytusDaemon.Plugins\StaytusDaemon.Plugins.csproj" />
     </ItemGroup>
     
     <Target Name="CopyToPluginDir" AfterTargets="AfterPublish">
-        <Copy SourceFiles="$(PublishDir)/StaytusDaemon.Plugins.dll" 
-              DestinationFolder="..\StaytusDaemon\bin\Release\netcoreapp3.0\publish\Plugins" />
+        <Copy SourceFiles="$(PublishDir)/StaytusDaemon.Plugins.dll" DestinationFolder="..\StaytusDaemon\bin\Release\netcoreapp3.0\publish\Plugins" />
     </Target>
 
 </Project>

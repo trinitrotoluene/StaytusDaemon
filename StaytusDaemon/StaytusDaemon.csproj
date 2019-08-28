@@ -1,12 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
-    <Target Name="CreatePluginFolderAfterBuild" AfterTargets="AfterBuild">
-        <MakeDir Directories="$(OutDir)\Plugins" Condition="!Exists('$(OutDir)\Plugins')" />
-    </Target>
-    
-    <Target Name="CreatePluginFolderAfterPublish" AfterTargets="AfterPublish">
-        <MakeDir Directories="$(PublishDir)\Plugins" Condition="!Exists('$(PublishDir)\Plugins')" />
-    </Target>
-    
     <PropertyGroup>
         <UserSecretsId>dotnet-mc_status_daemon-E89A0FAC-6E05-4A0B-9E68-7DEC265ABC04</UserSecretsId>
         <OutputType>Exe</OutputType>
@@ -32,5 +24,12 @@
 
     <ItemGroup>
       <ProjectReference Include="..\StaytusDaemon.Plugins\StaytusDaemon.Plugins.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\StaytusDaemon.Resolvers\bin\Release\netcoreapp3.0\StaytusDaemon.Resolvers.dll">
+        <Link>Plugins\StaytusDaemon.Resolvers.dll</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 </Project>

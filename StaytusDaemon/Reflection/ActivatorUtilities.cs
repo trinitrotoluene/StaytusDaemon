@@ -14,12 +14,13 @@ namespace StaytusDaemon.Reflection
         private static readonly ConcurrentDictionary<Type, Delegate> TypedActivatorCache =
             new ConcurrentDictionary<Type, Delegate>();
 
+        private static readonly ConcurrentDictionary<Type, InstanceCreator> ActivatorCache =
+            new ConcurrentDictionary<Type, InstanceCreator>();
+
         public static InstanceCreator<T> GetInstanceCreator<T>(ConstructorInfo ctorInfo)
         {
             if (TypedActivatorCache.TryGetValue(ctorInfo.DeclaringType, out var activator))
-            {
                 return (InstanceCreator<T>) activator;
-            }
 
             var compiledLambda = CreateInstanceCreatorLambda<InstanceCreator<T>>(ctorInfo).Compile();
 
@@ -28,16 +29,10 @@ namespace StaytusDaemon.Reflection
             return compiledLambda;
         }
 
-        private static readonly ConcurrentDictionary<Type, InstanceCreator> ActivatorCache =
-            new ConcurrentDictionary<Type, InstanceCreator>();
-
 
         public static InstanceCreator GetInstanceCreator(ConstructorInfo ctorInfo)
         {
-            if (ActivatorCache.TryGetValue(ctorInfo.DeclaringType, out var activator))
-            {
-                return activator;
-            }
+            if (ActivatorCache.TryGetValue(ctorInfo.DeclaringType, out var activator)) return activator;
 
             var compiledLambda = CreateInstanceCreatorLambda<InstanceCreator>(ctorInfo).Compile();
 
@@ -55,8 +50,8 @@ namespace StaytusDaemon.Reflection
             var property = Expression.Property(paramExpr, "Length");
             var getCtorArgsLenExpr = Expression.Convert(property, typeof(int));
 
-            Expression[] paramExprs = new Expression[parameters.Length];
-            for (int i = 0; i < parameters.Length; i++)
+            var paramExprs = new Expression[parameters.Length];
+            for (var i = 0; i < parameters.Length; i++)
             {
                 var getParamAtIndexExpr = Expression.ArrayIndex(paramExpr, Expression.Constant(i));
                 var castParamExpr = Expression.ConvertChecked(getParamAtIndexExpr, parameters[i].ParameterType);
@@ -67,11 +62,11 @@ namespace StaytusDaemon.Reflection
                                 Expression.Constant(i),
                                 getCtorArgsLenExpr),
                             Expression.Constant(parameters[i].IsOptional)),
-                        (parameters[i].IsOptional
+                        parameters[i].IsOptional
                             ? Expression.Convert(Expression.Constant(parameters[i].DefaultValue),
                                 parameters[i].ParameterType)
                             : Expression.Convert(Expression.Default(parameters[i].ParameterType),
-                                parameters[i].ParameterType)),
+                                parameters[i].ParameterType),
                         castParamExpr)
                 );
 
