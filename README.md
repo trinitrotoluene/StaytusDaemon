@@ -25,8 +25,8 @@ touch Services/MyService.ini
 # Configure as shown in later sections and adjust paths as appropriate.
 
 docker run -d \
-    -v /home/$USER/Settings.ini:/StaytusDaemon/Settings.ini:r \
-    -v /home/$USER/Services:/StaytusDaemon/Services:r \
+    -v /home/$USER/Settings.ini:/StaytusDaemon/Settings.ini:ro \
+    -v /home/$USER/Services:/StaytusDaemon/Services:ro \
     trinitrotoluene/staytusdaemon
 ```
 
