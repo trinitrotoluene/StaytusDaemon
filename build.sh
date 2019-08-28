@@ -2,6 +2,8 @@
 
 echo "Compiling StaytusDaemon..."
 
+dotnet build -c Release
+
 dotnet publish -c Release
 
 echo "Copying application to $PWDoutput/"
